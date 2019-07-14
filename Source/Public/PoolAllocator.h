@@ -11,7 +11,7 @@ public:
 	~PoolAllocator();
 	virtual void* Allocate(std::size_t requested_size, std::size_t alignment = 4) override;
 	virtual void Deallocate(void* node) override;
-	void Reset();
+	virtual void Reset() override;
 
 private:
 

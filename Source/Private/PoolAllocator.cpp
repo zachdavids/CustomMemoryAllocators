@@ -8,8 +8,10 @@ PoolAllocator::PoolAllocator(std::size_t size, std::size_t object_size) :
 	Allocator(size),
 	m_ObjectSize(object_size)
 {
+#ifdef _DEBUG
 	assert(m_ObjectSize > sizeof(void*) && "Block size is smaller than pointer size");
 	assert(m_Size % m_ObjectSize == 0 && "Object size not a multiple of pool size");
+#endif
 
 	Initialize();
 }
@@ -28,10 +30,14 @@ void PoolAllocator::Initialize()
 
 void* PoolAllocator::Allocate(std::size_t requested_size, std::size_t alignment /*= 0*/)
 {
+#ifdef _DEBUG	
 	assert(requested_size == m_ObjectSize && "Requested allocation is not equal to object size");
+#endif
 
 	Node* node = (Node*)m_FreeList.Pop();
+#ifdef _DEBUG
 	assert(node != nullptr && "Pool is full");
+#endif
 
 	m_MemoryUsed += m_ObjectSize;
 

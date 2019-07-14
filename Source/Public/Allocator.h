@@ -1,10 +1,12 @@
 #pragma once
 
+#include <cstddef>
+
 class Allocator
 {
 public:
 
-    Allocator(std::size_t size, void* start);
+    Allocator(std::size_t size);
     virtual ~Allocator();
     virtual void* Allocate(std::size_t size, std::size_t alignment = 0) = 0;
     virtual void Deallocate(void* address) = 0;

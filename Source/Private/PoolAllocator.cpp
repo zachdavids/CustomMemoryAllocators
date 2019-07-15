@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <iostream>
 
 PoolAllocator::PoolAllocator(std::size_t size, std::size_t object_size) :
 	Allocator(size),
@@ -59,7 +58,7 @@ void PoolAllocator::Reset()
 	const int num_objects = m_Size / m_ObjectSize;
 	for (int i = 0; i < num_objects; ++i) 
 	{
-		std::size_t address = reinterpret_cast<std::size_t>(m_Start) + (m_ObjectSize * i);
+		const std::size_t address = reinterpret_cast<std::size_t>(m_Start) + (m_ObjectSize * i);
 		m_FreeList.Push(reinterpret_cast<Node*>(address));
 	}
 }

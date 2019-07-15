@@ -14,7 +14,7 @@ int main()
 	std::cout << "Pool Multiple Deallocate: " << BenchmarkUtility::RunMultipleDeallocationTest(pool, 4096, 20480) << std::endl;
 
 	std::cout << "Pool Multiple Allocate: " << BenchmarkUtility::RunMultipleAllocationTest(stack, 4096, 2000) << std::endl;
-	std::cout << "Pool Multiple Deallocate: " << BenchmarkUtility::RunMultipleDeallocationTest(stack, 4096, 1) << std::endl;
+	std::cout << "Pool Multiple Deallocate: " << BenchmarkUtility::RunMultipleDeallocationTest(stack, 4096, 2000) << std::endl;
 
 	delete pool;
 }

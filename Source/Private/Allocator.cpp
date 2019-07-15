@@ -16,29 +16,27 @@ Allocator::~Allocator()
 
 std::size_t Allocator::Align(std::size_t address, std::size_t alignment) const
 {
-	const std::size_t multiplier = (address / alignment) + 1;
-	const std::size_t alignedAddress = multiplier * alignment;
-	const std::size_t padding = alignedAddress - address;
-	return padding;
+	std::size_t adjustment = alignment - (address & (alignment - 1));
+
+	return (adjustment == alignment) ? 0 : adjustment;
 }
 
 std::size_t Allocator::AlignHeader(std::size_t address, std::size_t alignment, std::size_t header_size) const
 {
-	std::size_t padding = Align(address, alignment);
-	std::size_t neededSpace = header_size;
+	std::size_t adjustment = Align(address, alignment);
+	std::size_t required_size = header_size;
 
-	if (padding < neededSpace) {
-		// Header does not fit - Calculate next aligned address that header fits
-		neededSpace -= padding;
+	if (adjustment < required_size)
+	{
+		required_size -= adjustment;
 
-		// How many alignments I need to fit the header        
-		if (neededSpace % alignment > 0) {
-			padding += alignment * (1 + (neededSpace / alignment));
-		}
-		else {
-			padding += alignment * (neededSpace / alignment);
+		adjustment += alignment * (1 + (required_size / alignment));
+
+		if (required_size % alignment != 0)
+		{
+			adjustment += alignment;
 		}
 	}
 
-	return padding;
+ 	return adjustment;
 }

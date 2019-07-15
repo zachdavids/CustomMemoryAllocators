@@ -21,20 +21,20 @@ void StackAllocator::Initialize()
 	Reset();
 }
 
-void* StackAllocator::Allocate(std::size_t requested_size, std::size_t alignment /*= 4*/)
+void* StackAllocator::Allocate(std::size_t size, std::size_t alignment /*= 4*/)
 {
 	const std::size_t adjustment = AlignHeader(m_CurrentPosition, alignment, sizeof(Header));
 
 #ifdef _DEBUG
-	assert(m_Size > m_MemoryUsed + requested_size + adjustment && "Not enough available memory for allocation");
+	assert(m_Size > m_MemoryUsed + size + adjustment && "Not enough available memory for allocation");
 #endif
 
 	const std::size_t aligned_address = m_CurrentPosition + adjustment;
 	Header* headerPtr = reinterpret_cast<Header*>(aligned_address - sizeof(Header));
 	*headerPtr = Header{ adjustment };
 
-	m_CurrentPosition += requested_size + adjustment;
-	m_MemoryUsed += requested_size + adjustment;
+	m_CurrentPosition += size + adjustment;
+	m_MemoryUsed += size + adjustment;
 
 	return reinterpret_cast<void*>(aligned_address);
 }

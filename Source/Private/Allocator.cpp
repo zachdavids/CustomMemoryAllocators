@@ -14,27 +14,31 @@ Allocator::~Allocator()
     m_Size = 0;
 }
 
-std::size_t Allocator::Align(void* address, std::size_t alignment) const
+std::size_t Allocator::Align(std::size_t address, std::size_t alignment) const
 {
-	std::size_t adjustment = alignment - (reinterpret_cast<std::size_t>(address) & (alignment - 1));
-
-	return (adjustment == alignment) ? 0 : adjustment;
+	const std::size_t multiplier = (address / alignment) + 1;
+	const std::size_t alignedAddress = multiplier * alignment;
+	const std::size_t padding = alignedAddress - address;
+	return padding;
 }
 
-std::size_t Allocator::AlignHeader(void* address, std::size_t alignment, std::size_t header_size) const
+std::size_t Allocator::AlignHeader(std::size_t address, std::size_t alignment, std::size_t header_size) const
 {
-	std::size_t adjustment = Align(address, alignment);
+	std::size_t padding = Align(address, alignment);
+	std::size_t neededSpace = header_size;
 
-	if (header_size > adjustment)
-	{
-		std::size_t required_space = header_size - adjustment;
-		adjustment += alignment * (required_space / alignment);
+	if (padding < neededSpace) {
+		// Header does not fit - Calculate next aligned address that header fits
+		neededSpace -= padding;
 
-		if (required_space % alignment != 0)
-		{
-			adjustment += alignment;
+		// How many alignments I need to fit the header        
+		if (neededSpace % alignment > 0) {
+			padding += alignment * (1 + (neededSpace / alignment));
+		}
+		else {
+			padding += alignment * (neededSpace / alignment);
 		}
 	}
 
-	return adjustment;
+	return padding;
 }

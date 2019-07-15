@@ -4,7 +4,6 @@
 
 class StackAllocator : public Allocator
 {
-
 	struct Header 
 	{
 		std::size_t adjustment;
@@ -20,7 +19,7 @@ public:
 
 private:
 
-	void* m_CurrentPosition;
+	std::size_t m_CurrentPosition;
 	void Initialize();
 };
 

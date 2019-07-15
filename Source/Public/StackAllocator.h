@@ -1,22 +1,26 @@
 #pragma once
 
 #include "Allocator.h"
-#include "FreeList.h"
 
-class PoolAllocator : public Allocator
+class StackAllocator : public Allocator
 {
+
+	struct Header 
+	{
+		std::size_t adjustment;
+	};
+
 public:
 
-	PoolAllocator(std::size_t size, std::size_t object_size);
-	~PoolAllocator();
+	StackAllocator(std::size_t size);
+	~StackAllocator();
 	virtual void* Allocate(std::size_t requested_size, std::size_t alignment = 4) override;
 	virtual void Deallocate(void* node) override;
 	virtual void Reset() override;
 
 private:
 
-	void* m_Start;
-	std::size_t m_ObjectSize;
-	FreeList m_FreeList;
+	void* m_CurrentPosition;
 	void Initialize();
 };
+

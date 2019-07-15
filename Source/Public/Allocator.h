@@ -20,4 +20,6 @@ protected:
     void* m_Start;
     std::size_t m_Size;
 	std::size_t m_MemoryUsed;
+	inline std::size_t Align(void* address, std::size_t alignment) const;
+	inline std::size_t AlignHeader(void* address, std::size_t alignment, std::size_t header_size) const;
 };

@@ -34,7 +34,8 @@ void* PoolAllocator::Allocate(std::size_t requested_size, std::size_t alignment 
 	assert(requested_size == m_ObjectSize && "Requested allocation is not equal to object size");
 #endif
 
-	Node* node = (Node*)m_FreeList.Pop();
+	Node* node = reinterpret_cast<Node*>(m_FreeList.Pop());
+
 #ifdef _DEBUG
 	assert(node != nullptr && "Pool is full");
 #endif
@@ -46,7 +47,7 @@ void* PoolAllocator::Allocate(std::size_t requested_size, std::size_t alignment 
 
 void PoolAllocator::Deallocate(void* node)
 {
-	m_FreeList.Push((Node*)node);
+	m_FreeList.Push(reinterpret_cast<Node*>(node));
 
 	m_MemoryUsed -= m_ObjectSize;
 }
@@ -58,7 +59,7 @@ void PoolAllocator::Reset()
 	const int num_objects = m_Size / m_ObjectSize;
 	for (int i = 0; i < num_objects; ++i) 
 	{
-		std::size_t address = (std::size_t)m_Start + (m_ObjectSize * i);
-		m_FreeList.Push((Node*)address);
+		std::size_t address = reinterpret_cast<std::size_t>(m_Start) + (m_ObjectSize * i);
+		m_FreeList.Push(reinterpret_cast<Node*>(address));
 	}
 }

@@ -3,6 +3,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
+using Node = StackLinkedList::Node;
+
 PoolAllocator::PoolAllocator(std::size_t size, std::size_t object_size) :
 	Allocator(size),
 	m_ObjectSize(object_size)

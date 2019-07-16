@@ -30,8 +30,8 @@ void* StackAllocator::Allocate(std::size_t size, std::size_t alignment /*= 4*/)
 #endif
 
 	const std::size_t aligned_address = m_CurrentPosition + adjustment;
-	Header* headerPtr = reinterpret_cast<Header*>(aligned_address - sizeof(Header));
-	*headerPtr = Header{ adjustment };
+	Header* header = reinterpret_cast<Header*>(aligned_address - sizeof(Header));
+	*header = Header{ adjustment };
 
 	m_CurrentPosition += size + adjustment;
 	m_MemoryUsed += size + adjustment;

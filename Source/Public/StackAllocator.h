@@ -4,13 +4,15 @@
 
 class StackAllocator : public Allocator
 {
-	struct Header 
+
+	struct Header
 	{
 		std::size_t adjustment;
 	};
 
 public:
 
+	StackAllocator() = default;
 	StackAllocator(std::size_t size);
 	~StackAllocator();
 	virtual void* Allocate(std::size_t requested_size, std::size_t alignment = 4) override;
@@ -22,4 +24,3 @@ private:
 	std::size_t m_CurrentPosition;
 	void Initialize();
 };
-

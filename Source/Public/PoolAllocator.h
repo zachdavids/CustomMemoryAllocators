@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Allocator.h"
-#include "FreeList.h"
+#include "StackLinkedList.h"
 
 class PoolAllocator : public Allocator
 {
@@ -17,6 +17,6 @@ private:
 
 	void* m_Start;
 	std::size_t m_ObjectSize;
-	FreeList m_FreeList;
+	StackLinkedList m_FreeList;
 	void Initialize();
 };

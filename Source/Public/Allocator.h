@@ -6,9 +6,10 @@ class Allocator
 {
 public:
 
+	Allocator() = default;
     Allocator(std::size_t size);
     virtual ~Allocator();
-    virtual void* Allocate(std::size_t size, std::size_t alignment = 4) = 0;
+    virtual void* Allocate(std::size_t size, std::size_t alignment = 8) = 0;
     virtual void Deallocate(void* address) = 0;
 	virtual void Reset() = 0;
     inline void* GetStart() const { return m_Start; }

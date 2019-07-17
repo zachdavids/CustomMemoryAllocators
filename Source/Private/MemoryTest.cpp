@@ -23,6 +23,10 @@ int main()
 	std::cout << "Linear Multiple Allocate: " << BenchmarkUtility::RunMultipleAllocationTest(linear, 4096, 2000) << std::endl;
 
 	std::cout << "FreeList Multiple Allocate: " << BenchmarkUtility::RunMultipleAllocationTest(free_list, 16, 1) << std::endl;
+	std::cout << "FreeList Multiple Deallocate: " << BenchmarkUtility::RunMultipleDeallocationTest(free_list, 16, 1) << std::endl;
 
 	delete pool;
+	delete stack;
+	delete linear;
+	delete free_list;
 }

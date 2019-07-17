@@ -63,7 +63,7 @@ void LinkedList<T>::RemoveAfter(Node* remove, Node* previous)
 		}
 		else
 		{
-			m_Head->next = remove->next;
+			m_Head = remove->next;
 		}
 	}
 	else

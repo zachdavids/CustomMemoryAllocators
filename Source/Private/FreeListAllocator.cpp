@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <iostream>
 
 using Node = LinkedList<std::size_t>::Node;
 
@@ -25,20 +26,21 @@ void FreeListAllocator::Initialize()
 
 void* FreeListAllocator::Allocate(std::size_t size, std::size_t alignment /*= 4*/)
 {
-	std::tuple data = FindFirstFit(size, alignment);
-	Node* current_node = std::get<0>(data);
-	Node* previous_node = std::get<1>(data);
-	const std::size_t adjustment = std::get<2>(data);
+	std::tuple result = FindFirstFit(size, alignment);
+	Node* current_node = std::get<0>(result);
+	Node* previous_node = std::get<1>(result);
+	const std::size_t adjustment = std::get<2>(result);
 
 	const std::size_t required_size = size + adjustment;
 	const std::size_t alignment_padding = alignment - sizeof(Header);
-	const std::size_t remaining_size = reinterpret_cast<Node*>(current_node)->data - required_size;
+	const std::size_t remaining_size = current_node->data - required_size;
 
 	if (remaining_size > 0)
 	{
-		Node* node = reinterpret_cast<Node*>(reinterpret_cast<std::size_t>(current_node) + alignment_padding);
+		Node* node = reinterpret_cast<Node*>(reinterpret_cast<std::size_t>(current_node) + required_size);
 		node->data = remaining_size;
-		m_FreeList.InsertAfter(current_node, node);
+		node->next = nullptr;
+		m_FreeList.InsertAfter(node, current_node);
 	}
 
 	m_FreeList.RemoveAfter(current_node, previous_node);
@@ -49,6 +51,13 @@ void* FreeListAllocator::Allocate(std::size_t size, std::size_t alignment /*= 4*
 	*header = Header{ alignment_padding, required_size };
 
 	m_MemoryUsed += required_size;
+
+	Node* test = m_FreeList.m_Head;
+	while (test != nullptr)
+	{
+		std::cout << &test << std::endl;
+		test = test->next;
+	}
 
 	return reinterpret_cast<void*>(aligned_address);
 }
@@ -64,7 +73,7 @@ std::tuple<Node*, Node*, std::size_t> FreeListAllocator::FindFirstFit(std::size_
 		adjustment = AlignHeader(reinterpret_cast<std::size_t>(current_node), alignment, sizeof(Header));
 		std::size_t required_size = size + adjustment;
 
-		if (reinterpret_cast<Node*>(current_node)->data >= required_size)
+		if (current_node->data >= required_size)
 		{
 			break;
 		}
@@ -78,12 +87,36 @@ std::tuple<Node*, Node*, std::size_t> FreeListAllocator::FindFirstFit(std::size_
 
 void FreeListAllocator::Deallocate(void* address)
 {
+	const std::size_t current_address = reinterpret_cast<std::size_t>(address);
+	const std::size_t header_address = current_address - s_HeaderSize;
+	
+	Header* header = reinterpret_cast<Header*>(header_address);
+	Node* node = reinterpret_cast<Node*>(header_address);
+	node->data = header->size + header->alignment;
+	node->next = nullptr;
+
+	Node* current = m_FreeList.m_Head;
+	Node* previous = nullptr;
+	while (current != nullptr)
+	{
+		if (current > address)
+		{
+			m_FreeList.InsertAfter(node, previous);
+			break;
+		}
+
+		previous = current;
+		current = current->next;
+	}
+
+	m_MemoryUsed -= node->data;
 }
 
 void FreeListAllocator::Reset()
 {
 	Node* node = reinterpret_cast<Node*>(m_Start);
 	node->data = m_Size;
+	node->next = nullptr;
 
 	m_FreeList.m_Head = nullptr;
 	m_FreeList.InsertAfter(node, nullptr);

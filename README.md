@@ -1,6 +1,6 @@
 # Custom Memory Allocators
 ****
-A collection of custom memory allocators.
+A collection of custom memory allocators used frequently in game engines. Memory allocation via malloc() or by operator new is very slow, however the performance of dynamic memory allocation can be greatly improved by satisfying requests from a pre-allocated memory block avoiding expensive context switches using custom memory allocators.
 
 ### Linear Allocator
 
@@ -13,6 +13,14 @@ Storage Complexity: O(n), where n is the requested allocation size
 ### Stack Allocator
 
 The stack allocator also stores an offset to the first unused memory address however includes the used of the header at beginning of each allocated memory chunk which stores the block's alignment shift. The size of individual blocks is the requested allocation size plus the header size. It allows for allocations of any size and increments the offset by the appropriate amount. Unlike the linear allocator, the stack allocator allows for individual the deallocation of individual blocks in a stack-like fashion (FILO) where the most recently allocated block is freed first.
+
+Allocation Complexity: O(1)  
+Deallocation Complexity: O(1)  
+Storage Complexity: O(n*h), where n is the requested allocation size, h is the header size
+
+### Double Buffered Allocator
+
+A double buffered allocator is constructed from two stack allocators and is useful for caching results of asynchronous processing on multicore systems. Every frame the active stack is switched and the newly active stack cleared, leaving the inactive stacks's data from last frame intact for use for use during the current frame.
 
 Allocation Complexity: O(1)  
 Deallocation Complexity: O(1)  

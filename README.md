@@ -7,9 +7,9 @@ A collection of custom memory allocators.
 
 The linear allocator stores an offset to the first unused memory address and allows for allocations of any size, each incrementing the offset by the appropriate amount. Freeing individual blocks of allocated memory is not permitted and therefore the entire block of memory must be cleared.
 
-Allocation Complexity: O(1)
-Allocation Complexity: N/A
-Storage Complexity: O(n), where n is the requested allocation size
+Allocation Complexity: O(1) 
+Allocation Complexity: N/A 
+Storage Complexity: O(n), where n is the requested allocation size 
 
 ### Stack Allocator
 

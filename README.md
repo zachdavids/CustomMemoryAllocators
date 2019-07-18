@@ -18,6 +18,14 @@ Allocation Complexity: O(1)
 Deallocation Complexity: O(1)  
 Storage Complexity: O(n*h), where n is the requested allocation size, h is the header size
 
+### Double-Ended Stack Allocator
+
+A double-ended stack allocator is a stack allocator that contains a stack at the bottom of it's pre-allocated memory block like a traditional stack allocator, but also contains another stack growing down from the top of the memory block. It can be useful for storing data with different lifetimes, for example, with the lower stack used to store level data, and the top stack treated as a single buffered allocator to store data with a single frame lifetime.
+
+Allocation Complexity: O(1)  
+Deallocation Complexity: O(1)  
+Storage Complexity: O(n*h), where n is the requested allocation size, h is the header size
+
 ### Double Buffered Allocator
 
 A double buffered allocator is constructed from two stack allocators and is useful for caching results of asynchronous processing on multicore systems. Every frame the active stack is switched and the newly active stack cleared, leaving the inactive stacks's data from last frame intact for use for use during the current frame.

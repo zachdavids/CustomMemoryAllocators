@@ -1,6 +1,5 @@
 # Custom Memory Allocators
 ****
-
 A collection of custom memory allocators.
 
 ### Linear Allocator

@@ -8,7 +8,7 @@ A collection of custom memory allocators.
 The linear allocator stores an offset to the first unused memory address and allows for allocations of any size, each incrementing the offset by the appropriate amount. Freeing individual blocks of allocated memory is not permitted and therefore the entire block of memory must be cleared.
 
 Allocation Complexity: O(1)  
-Allocation Complexity: N/A  
+Deallocation Complexity: N/A  
 Storage Complexity: O(n), where n is the requested allocation size 
 
 ### Stack Allocator
@@ -17,7 +17,7 @@ The stack allocator also stores an offset to the first unused memory address how
 
 Allocation Complexity: O(1)  
 Deallocation Complexity: O(1)  
-Storage Complexity: O(n + h), where n is the requested allocation size, and h is the header size
+Storage Complexity: O(n*h), where n is the requested allocation size, h is the header size
 
 ### Pool Allocator
 
@@ -33,5 +33,5 @@ The free list allocator mimics malloc in that it allows for allocations of any s
 
 Allocation Complexity: O(n), where n is the size of the free list  
 Deallocation Complexity: O(n), where n is the size of the free list  
-Storage Complexity: O(n), where n is the requested allocation size
+Storage Complexity: O(n*h), where n is the requested allocation size, h is the header size
 

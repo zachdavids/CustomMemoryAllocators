@@ -25,6 +25,9 @@ int main()
 	std::cout << "FreeList Multiple Allocate: " << BenchmarkUtility::RunMultipleAllocationTest(free_list, 16, 1) << std::endl;
 	std::cout << "FreeList Multiple Deallocate: " << BenchmarkUtility::RunMultipleDeallocationTest(free_list, 16, 1) << std::endl;
 
+	std::int32_t* ptr = new (free_list->Allocate(32)) std::int32_t(465);
+	free_list->Deallocate(ptr);
+
 	delete pool;
 	delete stack;
 	delete linear;

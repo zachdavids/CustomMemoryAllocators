@@ -52,37 +52,7 @@ void* FreeListAllocator::Allocate(std::size_t size, std::size_t alignment /*= 4*
 
 	m_MemoryUsed += required_size;
 
-	Node* test = m_FreeList.m_Head;
-	while (test != nullptr)
-	{
-		std::cout << &test << std::endl;
-		test = test->next;
-	}
-
 	return reinterpret_cast<void*>(aligned_address);
-}
-
-std::tuple<Node*, Node*, std::size_t> FreeListAllocator::FindFirstFit(std::size_t size, std::size_t alignment)
-{
-	Node* current_node = m_FreeList.m_Head;
-	Node* previous_node = nullptr;
-	std::size_t adjustment = 0;
-
-	while (current_node != nullptr)
-	{
-		adjustment = AlignHeader(reinterpret_cast<std::size_t>(current_node), alignment, sizeof(Header));
-		std::size_t required_size = size + adjustment;
-
-		if (current_node->data >= required_size)
-		{
-			break;
-		}
-
-		previous_node = current_node;
-		current_node = current_node->next;
-	}
-
-	return std::make_tuple(current_node, previous_node, adjustment);
 }
 
 void FreeListAllocator::Deallocate(void* address)
@@ -110,6 +80,23 @@ void FreeListAllocator::Deallocate(void* address)
 	}
 
 	m_MemoryUsed -= node->data;
+
+	Defragment();
+}
+
+void FreeListAllocator::Defragment()
+{
+	Node* current = m_FreeList.m_Head;
+	while (current != nullptr && current->next != nullptr)
+	{
+		if (reinterpret_cast<std::size_t>(current) + current->data == reinterpret_cast<std::size_t>(current->next))
+		{
+			current->data += current->next->data;
+			m_FreeList.RemoveAfter(current->next, current);
+		}
+
+		current = current->next;
+	}
 }
 
 void FreeListAllocator::Reset()
@@ -122,4 +109,27 @@ void FreeListAllocator::Reset()
 	m_FreeList.InsertAfter(node, nullptr);
 
 	m_MemoryUsed = 0;
+}
+
+std::tuple<Node*, Node*, std::size_t> FreeListAllocator::FindFirstFit(std::size_t size, std::size_t alignment)
+{
+	Node* current_node = m_FreeList.m_Head;
+	Node* previous_node = nullptr;
+	std::size_t adjustment = 0;
+
+	while (current_node != nullptr)
+	{
+		adjustment = AlignHeader(reinterpret_cast<std::size_t>(current_node), alignment, sizeof(Header));
+		std::size_t required_size = size + adjustment;
+
+		if (current_node->data >= required_size)
+		{
+			break;
+		}
+
+		previous_node = current_node;
+		current_node = current_node->next;
+	}
+
+	return std::make_tuple(current_node, previous_node, adjustment);
 }

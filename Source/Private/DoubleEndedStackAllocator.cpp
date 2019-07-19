@@ -27,7 +27,7 @@ void* DoubleEndedStackAllocator::Allocate(std::size_t size, std::size_t stack_id
 	size = AlignmentUtility::AlignAddress(size, alignment);
 
 #ifdef _DEBUG
-	assert(m_CurrentPosition[1] > m_CurrentPosition[0] + size && "Insufficient memory");
+	assert(m_CurrentPosition[1] >= m_CurrentPosition[0] + size && "Insufficient memory");
 #endif
 
 	U8* memory;

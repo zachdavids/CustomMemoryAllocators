@@ -2,7 +2,6 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include <iostream>
 
 PoolAllocator::PoolAllocator(std::size_t size, std::size_t object_size) :
 	m_Size(size),

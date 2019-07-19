@@ -22,15 +22,13 @@ void FreeListAllocator::Initialize()
 	Reset();
 }
 
-void* FreeListAllocator::Allocate(std::size_t size, std::size_t alignment /*= 4*/)
+void* FreeListAllocator::Allocate(std::size_t size, std::size_t alignment /*= 8*/)
 {
 	std::tuple result = FindFirstFit(size, alignment);
 	Node* current_node = std::get<0>(result);
 	Node* previous_node = std::get<1>(result);
 
-	const std::size_t alignment_padding = alignment - sizeof(Header);
 	const std::size_t remaining_size = current_node->size - size;
-
 	if (remaining_size > 0)
 	{
 		Node* node = reinterpret_cast<Node*>(reinterpret_cast<std::size_t>(current_node) + size);
@@ -40,6 +38,7 @@ void* FreeListAllocator::Allocate(std::size_t size, std::size_t alignment /*= 4*
 
 	RemoveAfter(current_node, previous_node);
 
+	const std::size_t alignment_padding = alignment - sizeof(Header);
 	const std::size_t header_address = reinterpret_cast<std::size_t>(current_node) + alignment_padding;
 	Header* header = reinterpret_cast<Header*>(header_address);
 	*header = Header{ size, alignment_padding };
@@ -58,16 +57,25 @@ void FreeListAllocator::Deallocate(void* address)
 
 	Node* current = m_Head;
 	Node* previous = nullptr;
-	while (current != nullptr)
+
+	if (current == nullptr)
 	{
-		if (current > address)
+		InsertAfter(node, m_Head);
+	}
+	else
+	{
+		while (current != nullptr)
 		{
-			InsertAfter(node, previous);
-			break;
+			if (current > address)
+			{
+				break;
+			}
+
+			previous = current;
+			current = current->next;
 		}
 
-		previous = current;
-		current = current->next;
+		InsertAfter(node, previous);
 	}
 
 	Defragment();
@@ -97,14 +105,16 @@ void FreeListAllocator::Reset()
 	InsertAfter(node, nullptr);
 }
 
-std::tuple<FreeListAllocator::Node*, FreeListAllocator::Node*> FreeListAllocator::FindFirstFit(std::size_t size, std::size_t alignment)
+std::tuple<FreeListAllocator::Node*, FreeListAllocator::Node*> FreeListAllocator::FindFirstFit(std::size_t& size, std::size_t alignment)
 {
 	Node* current_node = m_Head;
 	Node* previous_node = nullptr;
 
+	size = AlignmentUtility::AlignAddress(size + s_HeaderSize, alignment);
+
 	while (current_node != nullptr)
 	{
-		if (current_node->size >= size + alignment)
+		if (current_node->size >= size)
 		{
 			break;
 		}

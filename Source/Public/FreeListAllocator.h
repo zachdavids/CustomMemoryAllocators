@@ -45,6 +45,6 @@ private:
 	static constexpr std::size_t s_HeaderSize = sizeof(Header);
 	void Initialize();
 	void Defragment();
-	std::tuple<Node*, Node*> FindFirstFit(std::size_t size, std::size_t alignment);
+	std::tuple<Node*, Node*> FindFirstFit(std::size_t& size, std::size_t alignment);
 };
 

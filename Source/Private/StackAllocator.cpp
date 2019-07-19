@@ -27,7 +27,7 @@ void* StackAllocator::Allocate(std::size_t size, std::size_t alignment /*= 8*/)
 	size = AlignmentUtility::AlignAddress(size, alignment);
 
 #ifdef _DEBUG
-	assert(m_StartPosition + m_Size > m_CurrentPosition + size && "Insufficient memory");
+	assert(m_StartPosition + m_Size >= m_CurrentPosition + size && "Insufficient memory");
 #endif
 	
 	U8* memory = m_CurrentPosition;

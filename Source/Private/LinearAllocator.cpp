@@ -27,10 +27,11 @@ void* LinearAllocator::Allocate(std::size_t size, std::size_t alignment /*= 8*/)
 	size = AlignmentUtility::AlignAddress(size, alignment);
 
 #ifdef _DEBUG
-	assert(m_MemoryBlock + m_Size > m_CurrentPosition + size && "Not enough available memory for allocation");
+	assert(m_MemoryBlock + m_Size >= m_CurrentPosition + size && "Not enough available memory for allocation");
 #endif
 
 	U8* memory = m_CurrentPosition;
+
 	m_CurrentPosition += size;
 
 	return reinterpret_cast<void*>(memory);

@@ -1,22 +1,37 @@
 #pragma once
 
-#include "Allocator.h"
-#include "StackLinkedList.h"
+#include <cstddef>
 
-class PoolAllocator : public Allocator
+using U8 = unsigned char;
+
+class PoolAllocator
 {
+public:
+
+	struct Node
+	{
+		Node* next;
+	};
+
+	Node* m_Head = nullptr;
+
+private:
+
+	void Insert(Node* node);
+	Node* Remove();
+
 public:
 
 	PoolAllocator(std::size_t size, std::size_t object_size);
 	~PoolAllocator();
-	virtual void* Allocate(std::size_t requested_size, std::size_t alignment = 4) override;
-	virtual void Deallocate(void* node) override;
-	virtual void Reset() override;
+	void* Allocate(std::size_t requested_size);
+	void Deallocate(void* node);
+	void Reset();
 
 private:
 
-	void* m_Start;
+	U8* m_MemoryBlock;
+	std::size_t m_Size;
 	std::size_t m_ObjectSize;
-	StackLinkedList m_FreeList;
 	void Initialize();
 };

@@ -1,34 +1,50 @@
 #pragma once
 
-#include "Allocator.h"
-#include "LinkedList.h"
-
 #include <tuple>
+#include <cstddef>
 
-class FreeListAllocator : public Allocator
+using U8 = unsigned char;
+
+class FreeListAllocator
 {
 public:
 
 	struct Header
 	{
-		std::size_t alignment;
 		std::size_t size;
+		std::size_t alignment;
 	};
+
+public:
+
+	struct Node
+	{
+		std::size_t size;
+		Node* next;
+	};
+
+	Node* m_Head = nullptr;
+
+private:
+
+	void InsertAfter(Node* insert, Node* previous);
+	void RemoveAfter(Node* remove, Node* previous);
 
 public:
 
 	FreeListAllocator(std::size_t size);
 	~FreeListAllocator();
-	virtual void* Allocate(std::size_t size, std::size_t alignment = 8) override;
-	virtual void Deallocate(void* address) override;
-	virtual void Reset() override;
+	void* Allocate(std::size_t size, std::size_t alignment = 8);
+	void Deallocate(void* address);
+	void Reset();
 
 private:
 
-	LinkedList<std::size_t> m_FreeList;
+	U8* m_MemoryBlock;
+	std::size_t m_Size;
 	static constexpr std::size_t s_HeaderSize = sizeof(Header);
 	void Initialize();
 	void Defragment();
-	std::tuple<LinkedList<std::size_t>::Node*, LinkedList<std::size_t>::Node*, std::size_t> FindFirstFit(std::size_t size, std::size_t alignment);
+	std::tuple<Node*, Node*> FindFirstFit(std::size_t size, std::size_t alignment);
 };
 

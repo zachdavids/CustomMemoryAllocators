@@ -2,16 +2,15 @@
 
 #include <assert.h>
 #include <stdlib.h>
-
-using Node = StackLinkedList::Node;
+#include <iostream>
 
 PoolAllocator::PoolAllocator(std::size_t size, std::size_t object_size) :
-	Allocator(size),
+	m_Size(size),
 	m_ObjectSize(object_size)
 {
 #ifdef _DEBUG
-	assert(m_ObjectSize > sizeof(void*) && "Block size is smaller than pointer size");
-	assert(m_Size % m_ObjectSize == 0 && "Object size not a multiple of pool size");
+	assert(m_ObjectSize > sizeof(Node) && "Object size is smaller than node size");
+	assert(m_Size % m_ObjectSize == 0 && "Object size not a multiple of memory block size");
 #endif
 
 	Initialize();
@@ -19,48 +18,49 @@ PoolAllocator::PoolAllocator(std::size_t size, std::size_t object_size) :
 
 PoolAllocator::~PoolAllocator()
 {
-	free(m_Start);
+	free(m_MemoryBlock);
 }
 
 void PoolAllocator::Initialize()
 {
-	m_Start = malloc(m_Size);
+	m_MemoryBlock = reinterpret_cast<U8*>(malloc(m_Size));
 
 	Reset();
 }
 
-void* PoolAllocator::Allocate(std::size_t requested_size, std::size_t alignment /*= 0*/)
+void* PoolAllocator::Allocate(std::size_t requested_size)
 {
 #ifdef _DEBUG	
 	assert(requested_size == m_ObjectSize && "Requested allocation is not equal to object size");
 #endif
 
-	Node* node = reinterpret_cast<Node*>(m_FreeList.Pop());
-
-#ifdef _DEBUG
-	assert(node != nullptr && "Pool is full");
-#endif
-
-	m_MemoryUsed += m_ObjectSize;
-
-	return (void*)node;
+	return reinterpret_cast<void*>(Remove());
 }
 
 void PoolAllocator::Deallocate(void* node)
 {
-	m_FreeList.Push(reinterpret_cast<Node*>(node));
-
-	m_MemoryUsed -= m_ObjectSize;
+	Insert(reinterpret_cast<Node*>(node));
 }
 
 void PoolAllocator::Reset()
 {
-	m_MemoryUsed = 0;
-
 	const int num_objects = m_Size / m_ObjectSize;
 	for (int i = 0; i < num_objects; ++i) 
 	{
-		const std::size_t address = reinterpret_cast<std::size_t>(m_Start) + (m_ObjectSize * i);
-		m_FreeList.Push(reinterpret_cast<Node*>(address));
+		Insert(reinterpret_cast<Node*>(m_MemoryBlock + (m_ObjectSize * i)));
 	}
+}
+
+void PoolAllocator::Insert(Node* node)
+{
+	node->next = m_Head;
+	m_Head = node;
+}
+
+PoolAllocator::Node* PoolAllocator::Remove()
+{
+	Node* head = m_Head;
+	m_Head = head->next;
+
+	return head;
 }

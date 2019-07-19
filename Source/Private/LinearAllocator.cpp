@@ -1,46 +1,42 @@
 #include "LinearAllocator.h"
+#include "AlignmentUtility.h"
 
 #include <assert.h>
 #include <stdlib.h>
 
 LinearAllocator::LinearAllocator(std::size_t size) :
-	Allocator(size)
+	m_Size(size)
 {
 	Initialize();
 }
 
 LinearAllocator::~LinearAllocator()
 {
-	free(m_Start);
+	free(m_MemoryBlock);
 }
 
 void LinearAllocator::Initialize()
 {
-	m_Start = malloc(m_Size);
+	m_MemoryBlock = reinterpret_cast<U8*>(malloc(m_Size));
 
 	Reset();
 }
 
-void* LinearAllocator::Allocate(std::size_t size, std::size_t alignment /*= 4*/)
+void* LinearAllocator::Allocate(std::size_t size, std::size_t alignment /*= 8*/)
 {
-	const std::size_t adjustment = Align(m_CurrentPosition, alignment);
+	size = AlignmentUtility::AlignAddress(size, alignment);
 
 #ifdef _DEBUG
-	assert(m_Size > m_MemoryUsed + size + adjustment && "Not enough available memory for allocation");
+	assert(m_MemoryBlock + m_Size > m_CurrentPosition + size && "Not enough available memory for allocation");
 #endif
 
-	m_CurrentPosition += size + adjustment;
-	m_MemoryUsed += size + adjustment;
+	U8* memory = m_CurrentPosition;
+	m_CurrentPosition += size;
 
-	return reinterpret_cast<void*>(m_CurrentPosition + adjustment);
-}
-
-void LinearAllocator::Deallocate(void* address)
-{
+	return reinterpret_cast<void*>(memory);
 }
 
 void LinearAllocator::Reset()
 {
-	m_CurrentPosition = reinterpret_cast<std::size_t>(m_Start);
-	m_MemoryUsed = 0;
+	m_CurrentPosition = m_MemoryBlock;
 }

@@ -1,20 +1,23 @@
 #pragma once
 
-#include "Allocator.h"
+#include <cstddef>
 
-class LinearAllocator : public Allocator
+using U8 = unsigned char;
+
+class LinearAllocator
 {
 public:
 
 	LinearAllocator(std::size_t size);
 	~LinearAllocator();
-	virtual void* Allocate(std::size_t size, std::size_t alignment = 4) override;
-	virtual void Deallocate(void* address) override;
-	virtual void Reset() override;
+	void* Allocate(std::size_t size, std::size_t alignment = 8);
+	void Reset();
 
 private:
 
-	std::size_t m_CurrentPosition;
+	U8* m_MemoryBlock;
+	U8* m_CurrentPosition;
+	std::size_t m_Size;
 	void Initialize();
 
 };

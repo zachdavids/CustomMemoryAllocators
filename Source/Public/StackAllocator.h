@@ -1,13 +1,16 @@
 #pragma once
 
-#include "Allocator.h"
+#include <cstddef>
 
-class StackAllocator : public Allocator
+using U8 = unsigned char;
+
+class StackAllocator
 {
+public:
 
-	struct Header
+	struct Marker
 	{
-		std::size_t adjustment;
+		U8* address;
 	};
 
 public:
@@ -15,12 +18,17 @@ public:
 	StackAllocator() = default;
 	StackAllocator(std::size_t size);
 	~StackAllocator();
-	virtual void* Allocate(std::size_t requested_size, std::size_t alignment = 4) override;
-	virtual void Deallocate(void* node) override;
-	virtual void Reset() override;
+	void* Allocate(std::size_t requested_size, std::size_t alignment = 8);
+	void Deallocate(void* node);
+	void Reset();
+	void FreeToMarker(Marker marker);
+	Marker GetMarker() const;
 
 private:
 
-	std::size_t m_CurrentPosition;
+	U8* m_MemoryBlock;
+	U8* m_StartPosition;
+	U8* m_CurrentPosition;
+	std::size_t m_Size;
 	void Initialize();
 };

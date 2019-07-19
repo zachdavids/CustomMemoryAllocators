@@ -1,23 +1,34 @@
 #pragma once
 
-#include "Allocator.h"
+#include <cstddef>
 
-#include <stddef.h>
+using U8 = unsigned char;
 
-class DoubleEndedStackAllocator : public Allocator
+class DoubleEndedStackAllocator
 {
+public:
+
+	struct Marker
+	{
+		U8* address;
+		int stack_id;
+	};
+
 public:
 
 	DoubleEndedStackAllocator(std::size_t size);
 	~DoubleEndedStackAllocator();
-	virtual void* Allocate(std::size_t size, std::size_t alignment = 8) override;
-	virtual void Deallocate(void* address) override;
-	virtual void Reset() override;
+	void* Allocate(std::size_t size, std::size_t stack_id, std::size_t alignment = 8);
+	void FreeToMarker(Marker marker);
+	void Reset();
+	Marker GetMarker(int stack_id) const;
 
 private:
 
-	std::size_t m_Bottom;
-	std::size_t m_Top;
+	U8* m_MemoryBlock;
+	U8* m_StartPosition[2];
+	U8* m_CurrentPosition[2];
+	std::size_t m_Size;
 	void Initialize();
 };
 
